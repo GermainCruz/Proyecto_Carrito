@@ -10,5 +10,7 @@ router.get("/kpis", dashboardController.getKPIs);
 router.get("/ventas-diarias", dashboardController.getVentasDiarias);
 router.get("/categorias", dashboardController.getCategorias);
 router.get("/estadisticas-descriptivas", dashboardController.getDescriptiveStats);
+router.get("/estados-pedidos", dashboardController.getEstadosPedidos);
+router.get("/top-productos", dashboardController.getTopProductos);
 
 module.exports = router;

@@ -41,6 +41,14 @@ const carritoService = {
 		const { data } = await api.get("/dashboard/estadisticas-descriptivas");
 		return data.data;
 	},
+	async getEstadosPedidos() {
+		const { data } = await api.get("/dashboard/estados-pedidos");
+		return data.data;
+	},
+	async getTopProductosDashboard() {
+		const { data } = await api.get("/dashboard/top-productos");
+		return data.data;
+	},
 };
 
 export default carritoService;

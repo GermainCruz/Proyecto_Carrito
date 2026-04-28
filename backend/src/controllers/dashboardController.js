@@ -36,4 +36,22 @@ async function getDescriptiveStats(_req, res, next) {
 	}
 }
 
-module.exports = { getKPIs, getVentasDiarias, getCategorias, getDescriptiveStats };
+async function getEstadosPedidos(_req, res, next) {
+	try {
+		const data = await estadisticasService.getEstadosPedidos();
+		res.status(200).json({ ok: true, data });
+	} catch (error) {
+		next(error);
+	}
+}
+
+async function getTopProductos(_req, res, next) {
+	try {
+		const data = await estadisticasService.getTopProductos();
+		res.status(200).json({ ok: true, data });
+	} catch (error) {
+		next(error);
+	}
+}
+
+module.exports = { getKPIs, getVentasDiarias, getCategorias, getDescriptiveStats, getEstadosPedidos, getTopProductos };
