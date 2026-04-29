@@ -1,71 +1,44 @@
 # Sistema de Carrito de Compras - Ecommerce
 
-<a id="descripcion"></a>
 ## 📖 Descripción breve y clara del propósito del proyecto
-Aplicación web comercial para gestionar un flujo completo de compras en linea: autenticación por roles, catálogo de productos, carrito persistente, checkout con control de stock, historial de pedidos, dashboard de indicadores y generación de reportes en PDF. El objetivo es centralizar operaciones de venta y ofrecer trazabilidad funcional tanto para clientes como para perfiles de gestión.
+Aplicación web comercial para gestionar un proceso de compra completo: autenticación por roles, catálogo de productos, carrito persistente, pasarela de pagos simulada, generación de pedidos, historial de transacciones, dashboard de indicadores y reportes PDF. El proyecto centraliza la operación de venta y la trazabilidad de compras para clientes, gestores y administradores.
 
-<a id="tabla-de-contenido"></a>
 ## 📑 Tabla de contenido
-- [Descripcion breve y clara del proposito del proyecto](#descripcion)
-- [Tabla de contenido](#tabla-de-contenido)
-- [Caracteristicas principales](#caracteristicas)
-- [Stack tecnologico](#stack)
-- [Arquitectura del proyecto](#arquitectura)
-- [Modelo de base de datos](#modelo-bd)
-- [Estructura de carpetas](#estructura)
-- [Variables de entorno](#variables)
+- [Descripción breve](#descripcion)
+- [Características principales](#caracteristicas)
+- [Stack tecnológico](#stack-tecnologico)
+- [Arquitectura del proyecto](#arquitectura-del-proyecto)
+- [Modelo de base de datos](#modelo-de-base-de-datos)
+- [Estructura de carpetas](#estructura-de-carpetas)
+- [Variables de entorno](#variables-de-entorno)
+- [Documentación complementaria](#documentacion-complementaria)
 
-<a id="caracteristicas"></a>
 ## ✨ Características principales
-- Autenticación y autorización por roles: admin, gestor y cliente.
-- Gestión de productos con operaciones CRUD y filtros de búsqueda.
+- Autenticación y autorización por roles: administrador, gestor y cliente.
+- Catálogo de productos con CRUD, búsqueda, filtros y visualización de imágenes.
 - Carrito persistente por usuario con actualización de cantidades.
-- Validaciones de negocio de stock:
-  - No se permite comprar más unidades de las disponibles.
-  - Límite máximo de stock y cantidad por producto de 100 unidades.
-- Proceso de checkout transaccional con generación de pedido y detalle de compra.
-- Dashboard con KPIs y gráficos de ventas (Recharts).
-- Reportes PDF operacionales y de gestión con formato profesional.
-- API REST con documentación Swagger disponible en runtime.
+- Validación de stock en carrito, checkout y productos.
+- Pasarela de pagos simulada con métodos, validaciones y transacciones.
+- Historial de pedidos y transacciones con detalle completo.
+- Dashboard con KPIs y gráficos interactivos.
+- Generación de reportes PDF operacionales y de gestión.
+- API REST documentada con Swagger.
 - Manejo centralizado de errores y validación de solicitudes.
 
-<a id="stack"></a>
 ## 🛠️ Stack tecnológico
-- Lenguajes:
-  - JavaScript (Node.js y React).
-  - SQL (PostgreSQL).
-- Backend:
-  - Express 4.
-  - Sequelize 6.
-  - pg.
-  - express-session.
-  - express-validator.
-  - pdfkit.
-  - swagger-ui-express.
-- Frontend:
-  - React 18.
-  - React Router DOM 6.
-  - Axios.
-  - Recharts.
-  - Vite 5.
-  - Tailwind CSS.
-- Herramientas de desarrollo:
-  - Nodemon.
-  - PostCSS + Autoprefixer.
+- Lenguaje principal: JavaScript.
+- Backend: Node.js, Express, Sequelize, PostgreSQL, express-session, express-validator, pdfkit, swagger-ui-express.
+- Frontend: React 18, React Router DOM, Axios, Recharts, Vite.
+- Estilos y tooling: Tailwind CSS, PostCSS, Autoprefixer, Nodemon.
 
-<a id="arquitectura"></a>
 ## 🏗️ Arquitectura del proyecto
-El proyecto aplica una arquitectura cliente-servidor con separación por capas en backend y modularización por contexto funcional en frontend.
+El sistema sigue una arquitectura cliente-servidor por capas. En backend se utiliza el flujo Controller -> Service -> Repository -> Model, mientras que en frontend se organiza por páginas, componentes, servicios, hooks y contextos.
 
-- Patrón principal en backend: Controller -> Service -> Repository -> Model (Sequelize).
-- Flujo de datos:
-  - El cliente React consume endpoints REST mediante Axios.
-  - Las rutas Express validan y delegan a controladores.
-  - Los servicios encapsulan reglas de negocio y transacciones.
-  - Los repositorios gestionan acceso a datos con Sequelize/PostgreSQL.
-- Estado en frontend:
-  - Context API para autenticación y carrito.
-  - Hooks personalizados para reutilizar lógica de dominio.
+- El frontend consume la API REST mediante Axios.
+- Los controladores reciben, validan y enrutan la petición.
+- Los servicios concentran las reglas de negocio y transacciones.
+- Los repositorios encapsulan el acceso a PostgreSQL a través de Sequelize.
+- La pasarela de pagos y los reportes se integran como módulos funcionales del dominio comercial.
 
 ```mermaid
 flowchart LR
@@ -76,10 +49,9 @@ flowchart LR
     E --> F[Servicios]
     F --> G[Repositorios]
     G --> H[(PostgreSQL)]
-    F --> I[Generador PDF]
+    F --> I[PDF / Pagos]
 ```
 
-<a id="modelo-bd"></a>
 ## 🗃️ Modelo de base de datos
 Tablas principales:
 - usuarios
@@ -88,13 +60,16 @@ Tablas principales:
 - carrito_productos
 - pedidos
 - detalle_pedidos
+- metodos_pago
+- transacciones_pago
 
 Relaciones clave:
 - Un usuario tiene un carrito.
-- Un carrito contiene muchos items (carrito_productos).
+- Un carrito contiene múltiples productos en carrito_productos.
 - Un pedido pertenece a un usuario.
-- Un pedido tiene muchos detalles (detalle_pedidos).
-- Cada detalle referencia un producto.
+- Un pedido tiene varios detalle_pedidos.
+- Cada detalle_pedido referencia un producto.
+- Una transacción de pago pertenece a un método de pago y a un pedido.
 
 ```mermaid
 erDiagram
@@ -104,60 +79,67 @@ erDiagram
     USUARIOS ||--o{ PEDIDOS : realiza
     PEDIDOS ||--o{ DETALLE_PEDIDOS : incluye
     PRODUCTOS ||--o{ DETALLE_PEDIDOS : vendido_en
+    PEDIDOS ||--o{ TRANSACCIONES_PAGO : genera
+    METODOS_PAGO ||--o{ TRANSACCIONES_PAGO : clasifica
 ```
 
-<a id="estructura"></a>
 ## 📁 Estructura de carpetas
 ```text
 proyecto-carrito/
-|-- backend/                      # API REST y logica de negocio
-|   |-- server.js                 # Punto de entrada del backend
-|   |-- package.json              # Scripts y dependencias backend
+|-- backend/                      # API REST, reglas de negocio y acceso a datos
+|   |-- server.js                 # Punto de arranque del backend
+|   |-- package.json              # Scripts y dependencias del backend
 |   `-- src/
-|       |-- app.js                # Configuracion de Express
-|       |-- config/               # Conexion BD y bootstrap
-|       |-- controllers/          # Orquestacion HTTP
-|       |-- dtos/                 # Transformacion de respuestas
-|       |-- middlewares/          # Auth, roles, validacion, errores
-|       |-- models/               # Definicion Sequelize y relaciones
-|       |-- repositories/         # Acceso a datos
-|       |-- routes/               # Endpoints por modulo
-|       |-- services/             # Reglas de negocio
+|       |-- app.js                # Configuración de Express y rutas
+|       |-- config/               # Base de datos y bootstrap
+|       |-- controllers/          # Capa HTTP
+|       |-- dtos/                 # Formato de respuestas
+|       |-- middlewares/          # Autenticación, roles, validación y errores
+|       |-- models/               # Modelos Sequelize y relaciones
+|       |-- repositories/         # Persistencia y consultas
+|       |-- routes/               # Endpoints por módulo
+|       |-- services/             # Lógica de negocio
 |       `-- utils/                # Utilidades (JWT, bcrypt, PDF)
-|-- frontend/                     # Aplicacion React
-|   |-- package.json              # Scripts y dependencias frontend
-|   |-- public/                   # Recursos publicos
+|-- frontend/                     # Aplicación React
+|   |-- package.json              # Scripts y dependencias del frontend
+|   |-- public/                   # Recursos públicos
 |   `-- src/
 |       |-- App.jsx               # Ruteo principal
-|       |-- components/           # Componentes UI por dominio
-|       |-- context/              # Estado global (auth y carrito)
+|       |-- components/           # Componentes reutilizables
+|       |-- context/              # Estado global
 |       |-- hooks/                # Hooks personalizados
-|       |-- pages/                # Pantallas de negocio
+|       |-- pages/                # Pantallas del sistema
 |       |-- services/             # Cliente HTTP y servicios
-|       |-- assets/               # Recursos estaticos locales
+|       |-- assets/               # Imágenes y recursos locales
 |       `-- utils/                # Formateadores y utilidades
-|-- sql/                          # Scripts DDL y seed
-|   |-- create_database.sql       # Estructura de base de datos
-|   |-- datos.sql                 # Datos iniciales
-|   `-- README.md                 # Guia SQL del proyecto
-`-- README.md                     # Documentacion principal
+|-- sql/                          # Scripts de base de datos y datos iniciales
+|   |-- create_database.sql       # Estructura de tablas
+|   |-- datos.sql                 # Seed de ejemplo
+|   `-- README.md                 # Guía SQL
+|-- MANUAL_USUARIO.md             # Guía de uso funcional
+|-- MANUAL_INSTALACION.md         # Guía de despliegue y puesta en marcha
+`-- README.md                     # Documentación principal
 ```
 
-<a id="variables"></a>
 ## 🔑 Variables de entorno
 ```env
 # Host del servidor PostgreSQL
 DB_HOST=localhost
 
-# Puerto de PostgreSQL
+# Puerto del servidor PostgreSQL
 DB_PORT=5432
 
 # Nombre de la base de datos del proyecto
 DB_NAME=carrito_compras
 
-# Usuario con permisos sobre la base de datos
+# Usuario de PostgreSQL
 DB_USER=postgres
 
-# Contrasena del usuario de base de datos
+# Contraseña del usuario de PostgreSQL
 DB_PASSWORD=sa
 ```
+
+## 📘 Documentación complementaria
+- [Manual de usuario](MANUAL_USUARIO.md)
+- [Manual de instalación](MANUAL_INSTALACION.md)
+- [Guía SQL](sql/README.md)
