@@ -15,10 +15,12 @@ const errorHandler = require("./middlewares/errorHandler");
 
 const app = express();
 
-const allowedOrigins = [
-	process.env.FRONTEND_URL || "http://localhost:5173",
-	"http://localhost:5174",
-];
+const defaultOrigins = ["http://localhost:5173", "http://localhost:5174"];
+const envOrigins = (process.env.FRONTEND_URLS || process.env.FRONTEND_URL || "")
+	.split(",")
+	.map((origin) => origin.trim())
+	.filter(Boolean);
+const allowedOrigins = [...new Set([...envOrigins, ...defaultOrigins])];
 
 app.use(
 	cors({

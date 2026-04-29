@@ -46,6 +46,10 @@ const seedMetodosPago = [
 ];
 
 async function ensureDatabaseExists() {
+	if (process.env.DATABASE_URL) {
+		return;
+	}
+
 	const databaseName = process.env.DB_NAME || "carrito_compras";
 	const client = new Client({
 		host: process.env.DB_HOST || "localhost",
