@@ -17,10 +17,6 @@ const carritoService = {
 		const { data } = await api.delete(`/carrito/items/${productoId}`);
 		return data.data;
 	},
-	async checkout(payload) {
-		const { data } = await api.post("/pedidos/checkout", payload);
-		return data.data;
-	},
 	async getMisPedidos() {
 		const { data } = await api.get("/pedidos/mis");
 		return data.data;

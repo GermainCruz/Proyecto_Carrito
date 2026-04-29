@@ -10,16 +10,6 @@ const router = express.Router();
 
 router.use(requireAuth);
 
-router.post(
-	"/checkout",
-	[
-		body("metodo_pago_simulado").optional().isLength({ min: 3 }),
-		body("fecha_pedido_cliente").optional().isISO8601(),
-		validateRequest,
-	],
-	authorizeRoles("cliente", "admin", "gestor"),
-	pedidosController.checkout
-);
 router.get("/mis", authorizeRoles("cliente", "admin", "gestor"), pedidosController.listMine);
 router.get("/", authorizeRoles("admin", "gestor"), pedidosController.listAll);
 router.patch(

@@ -217,7 +217,19 @@ export default function GestionPedidos() {
 										<EstadoBadge estado={pedido.estado} />
 									</td>
 									<td className="px-4 py-3 text-slate-600">
-										{pedido.metodo_pago_simulado || "—"}
+										<p className="font-medium text-slate-700">
+											{pedido.metodo_pago?.nombre || "—"}
+										</p>
+										{pedido.transaccion_pago?.tarjeta_ultimos_4 ? (
+											<p className="font-mono text-xs text-slate-400">
+												**** {pedido.transaccion_pago.tarjeta_ultimos_4}
+											</p>
+										) : null}
+										{pedido.transaccion_pago?.telefono_billetera ? (
+											<p className="font-mono text-xs text-slate-400">
+												{pedido.transaccion_pago.telefono_billetera}
+											</p>
+										) : null}
 									</td>
 									<td className="px-4 py-3 text-right font-semibold text-slate-800">
 										{money(pedido.total)}
@@ -278,8 +290,29 @@ export default function GestionPedidos() {
 							</div>
 							<div>
 								<p className="text-xs font-semibold uppercase text-slate-400">Pago</p>
-								<p>{selectedPedido.metodo_pago_simulado || "N/A"}</p>
+								<p>{selectedPedido.metodo_pago?.nombre || "N/A"}</p>
+								{selectedPedido.transaccion_pago?.tarjeta_ultimos_4 ? (
+									<p className="font-mono text-xs text-slate-500">
+										{(selectedPedido.transaccion_pago.tarjeta_marca || "").toUpperCase()} **** {selectedPedido.transaccion_pago.tarjeta_ultimos_4}
+									</p>
+								) : null}
+								{selectedPedido.transaccion_pago?.telefono_billetera ? (
+									<p className="font-mono text-xs text-slate-500">
+										{selectedPedido.transaccion_pago.telefono_billetera}
+									</p>
+								) : null}
 							</div>
+							{selectedPedido.transaccion_pago?.codigo_transaccion ? (
+								<div className="col-span-2">
+									<p className="text-xs font-semibold uppercase text-slate-400">Transacción</p>
+									<p className="font-mono text-xs text-slate-700">
+										{selectedPedido.transaccion_pago.codigo_transaccion}
+										{selectedPedido.transaccion_pago.codigo_autorizacion
+											? ` · Auth ${selectedPedido.transaccion_pago.codigo_autorizacion}`
+											: ""}
+									</p>
+								</div>
+							) : null}
 						</div>
 
 						<div className="space-y-2">

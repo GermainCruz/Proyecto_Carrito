@@ -6,8 +6,10 @@ import { useAuth } from "./hooks/useAuth";
 import Login from "./pages/Login";
 import Productos from "./pages/Productos";
 import Carrito from "./pages/Carrito";
+import PasarelaPago from "./pages/PasarelaPago";
 import Dashboard from "./pages/Dashboard";
 import MisPedidos from "./pages/MisPedidos";
+import MisTransacciones from "./pages/MisTransacciones";
 import ReportesOperacionales from "./pages/ReportesOperacionales";
 import ReportesGestion from "./pages/ReportesGestion";
 import Register from "./pages/Register";
@@ -61,10 +63,26 @@ function App() {
 						}
 					/>
 					<Route
+						path="/pasarela-pago"
+						element={
+							<ProtectedRoute roles={["cliente", "admin", "gestor"]}>
+								<PasarelaPago />
+							</ProtectedRoute>
+						}
+					/>
+					<Route
 						path="/mis-pedidos"
 						element={
 							<ProtectedRoute roles={["cliente", "admin", "gestor"]}>
 								<MisPedidos />
+							</ProtectedRoute>
+						}
+					/>
+					<Route
+						path="/mis-transacciones"
+						element={
+							<ProtectedRoute roles={["cliente", "admin", "gestor"]}>
+								<MisTransacciones />
 							</ProtectedRoute>
 						}
 					/>
@@ -76,22 +94,22 @@ function App() {
 							</ProtectedRoute>
 						}
 					/>
-				<Route
-					path="/gestion-pedidos"
-					element={
-						<ProtectedRoute roles={["admin", "gestor"]}>
-							<GestionPedidos />
-						</ProtectedRoute>
-					}
-				/>
-				<Route
-					path="/reportes/operacional"
-					element={
-						<ProtectedRoute roles={["admin", "gestor"]}>
-							<ReportesOperacionales />
-						</ProtectedRoute>
-					}
-				/>
+					<Route
+						path="/gestion-pedidos"
+						element={
+							<ProtectedRoute roles={["admin", "gestor"]}>
+								<GestionPedidos />
+							</ProtectedRoute>
+						}
+					/>
+					<Route
+						path="/reportes/operacional"
+						element={
+							<ProtectedRoute roles={["admin", "gestor"]}>
+								<ReportesOperacionales />
+							</ProtectedRoute>
+						}
+					/>
 					<Route
 						path="/reportes/gestion"
 						element={
@@ -102,9 +120,7 @@ function App() {
 					/>
 					<Route
 						path="*"
-						element={
-							<Navigate to={user ? "/productos" : "/login"} replace />
-						}
+						element={<Navigate to={user ? "/productos" : "/login"} replace />}
 					/>
 				</Routes>
 			</main>

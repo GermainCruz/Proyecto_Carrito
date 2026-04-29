@@ -2,7 +2,7 @@ const path = require("path");
 const multer = require("multer");
 const fs = require("fs");
 
-const PRODUCTOS_ASSETS_DIR = path.join(__dirname, "..", "..", "..", "frontend", "src", "assets", "productos");
+const PRODUCTOS_ASSETS_DIR = path.join(__dirname, "..", "..", "..", "frontend", "src", "assets");
 
 if (!fs.existsSync(PRODUCTOS_ASSETS_DIR)) {
 	fs.mkdirSync(PRODUCTOS_ASSETS_DIR, { recursive: true });
@@ -10,10 +10,8 @@ if (!fs.existsSync(PRODUCTOS_ASSETS_DIR)) {
 
 function sanitizeFilename(nombre) {
 	return nombre
-		.normalize("NFD")
-		.replace(/[\u0300-\u036f]/g, "")
 		.replace(/\s+/g, "_")
-		.replace(/[^a-zA-Z0-9_\-]/g, "")
+		.replace(/[<>:"/\\|?*]/g, "")
 		.replace(/_+/g, "_")
 		.replace(/^_|_$/g, "");
 }
@@ -26,6 +24,7 @@ const storage = multer.diskStorage({
 		const nombre = req.body?.nombre || "producto";
 		const ext = path.extname(file.originalname).toLowerCase();
 		const baseName = sanitizeFilename(nombre);
+		// Nombre determinístico: evita generar archivos duplicados con sufijos.
 		cb(null, `${baseName}${ext}`);
 	},
 });

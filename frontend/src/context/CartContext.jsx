@@ -56,35 +56,15 @@ export function CartProvider({ children }) {
 			const data = await carritoService.removeItem(producto_id);
 			setCart(data);
 			showNotification("Producto eliminado del carrito");
-		} catch (error) {
+		} catch {
 			showNotification("Error al eliminar producto", "error");
 		} finally {
 			setIsLoading(false);
 		}
 	};
 
-	const checkout = async (metodo_pago_simulado) => {
-		setIsLoading(true);
-		try {
-			const pedido = await carritoService.checkout({
-				metodo_pago_simulado,
-				fecha_pedido_cliente: new Date().toISOString(),
-			});
-			await refreshCart();
-			window.dispatchEvent(new Event("inventory:updated"));
-			showNotification("¡Compra realizada con éxito!");
-			return pedido;
-		} catch (error) {
-			const msg = error.response?.data?.message || "Error al finalizar compra";
-			showNotification(msg, "error");
-			throw error;
-		} finally {
-			setIsLoading(false);
-		}
-	};
-
 	const value = useMemo(
-		() => ({ cart, isLoading, notification, refreshCart, addItem, updateItem, removeItem, checkout }),
+		() => ({ cart, isLoading, notification, refreshCart, addItem, updateItem, removeItem, showNotification }),
 		[cart, isLoading, notification]
 	);
 

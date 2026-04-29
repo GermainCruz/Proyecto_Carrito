@@ -4,7 +4,10 @@ import Modal from "../components/common/Modal";
 import carritoService from "../services/carritoService";
 import { dateTimeFormat, money } from "../utils/formateadores";
 
-const localProductImages = import.meta.glob("../assets/productos/*", { eager: true, import: "default" });
+const localProductImages = {
+	...import.meta.glob("../assets/*", { eager: true, import: "default" }),
+	...import.meta.glob("../assets/productos/*", { eager: true, import: "default" }),
+};
 
 function resolveProductImage(imagenUrl) {
 	if (!imagenUrl) return null;
@@ -14,8 +17,11 @@ function resolveProductImage(imagenUrl) {
 	const normalized = imagenUrl.replaceAll("\\", "/");
 	const fileName = normalized.split("/").pop();
 	if (!fileName) return null;
-	const directAsset = localProductImages[`../assets/productos/${fileName}`];
+	const directAsset = localProductImages[`../assets/${fileName}`];
 	if (directAsset) return directAsset;
+
+	const legacyAsset = localProductImages[`../assets/productos/${fileName}`];
+	if (legacyAsset) return legacyAsset;
 	return normalized;
 }
 
@@ -36,11 +42,10 @@ function EstadoBadge({ estado }) {
 	);
 }
 
-const METODO_LABELS = {
-	tarjeta_simulada: "Tarjeta",
-	yape_simulado:    "Yape",
-	plin_simulado:    "Plin",
-};
+function metodoPagoLabel(pedido) {
+	if (pedido?.metodo_pago?.nombre) return pedido.metodo_pago.nombre;
+	return "—";
+}
 
 export default function MisPedidos() {
 	const [pedidos, setPedidos] = useState([]);
@@ -145,9 +150,12 @@ export default function MisPedidos() {
 
 										<div className="flex flex-wrap items-center justify-between gap-2">
 											<div className="flex items-center gap-3 text-sm text-slate-500">
-												<span>
-													{METODO_LABELS[pedido.metodo_pago_simulado] || pedido.metodo_pago_simulado || "—"}
-												</span>
+												<span>{metodoPagoLabel(pedido)}</span>
+												{pedido.transaccion_pago?.tarjeta_ultimos_4 ? (
+													<span className="font-mono text-xs text-slate-400">
+														**** {pedido.transaccion_pago.tarjeta_ultimos_4}
+													</span>
+												) : null}
 												<span className="text-slate-300">|</span>
 												<span>{pedido.detalles?.length || 0} producto{pedido.detalles?.length !== 1 ? "s" : ""}</span>
 											</div>
@@ -192,13 +200,34 @@ export default function MisPedidos() {
 							<div>
 								<p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Método de pago</p>
 								<p className="mt-0.5 font-medium text-slate-800">
-									{METODO_LABELS[selectedPedido.metodo_pago_simulado] || selectedPedido.metodo_pago_simulado || "N/A"}
+									{metodoPagoLabel(selectedPedido)}
 								</p>
+								{selectedPedido.transaccion_pago?.tarjeta_ultimos_4 ? (
+									<p className="font-mono text-xs text-slate-500">
+										{(selectedPedido.transaccion_pago.tarjeta_marca || "").toUpperCase()} **** {selectedPedido.transaccion_pago.tarjeta_ultimos_4}
+									</p>
+								) : null}
+								{selectedPedido.transaccion_pago?.telefono_billetera ? (
+									<p className="font-mono text-xs text-slate-500">
+										{selectedPedido.transaccion_pago.telefono_billetera}
+									</p>
+								) : null}
 							</div>
 							<div>
 								<p className="text-xs font-semibold uppercase tracking-wide text-slate-400">N.° de productos</p>
 								<p className="mt-0.5 font-medium text-slate-800">{selectedPedido.detalles?.length || 0}</p>
 							</div>
+							{selectedPedido.transaccion_pago?.codigo_transaccion ? (
+								<div className="col-span-2">
+									<p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Transacción</p>
+									<p className="mt-0.5 font-mono text-xs text-slate-700">
+										{selectedPedido.transaccion_pago.codigo_transaccion}
+										{selectedPedido.transaccion_pago.codigo_autorizacion
+											? ` · Auth ${selectedPedido.transaccion_pago.codigo_autorizacion}`
+											: ""}
+									</p>
+								</div>
+							) : null}
 						</div>
 
 						{/* Lista de productos con imágenes */}

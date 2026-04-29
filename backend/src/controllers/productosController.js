@@ -70,7 +70,7 @@ async function uploadImagen(req, res, next) {
 			error.status = 400;
 			throw error;
 		}
-		const relativePath = `frontend/src/assets/productos/${req.file.filename}`;
+		const relativePath = `frontend/src/assets/${req.file.filename}`;
 		res.status(200).json({ ok: true, imagen_url: relativePath });
 	} catch (error) {
 		next(error);

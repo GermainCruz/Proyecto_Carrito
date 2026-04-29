@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 import CarritoItem from "../components/carrito/CarritoItem";
 import ResumenCarrito from "../components/carrito/ResumenCarrito";
@@ -6,19 +7,15 @@ import Boton from "../components/common/Boton";
 import { useCarrito } from "../hooks/useCarrito";
 
 export default function Carrito() {
-	const { cart, refreshCart, updateItem, removeItem, checkout, isLoading } = useCarrito();
+	const { cart, refreshCart, updateItem, removeItem, isLoading } = useCarrito();
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		refreshCart();
 	}, []);
 
-	const onCheckout = async () => {
-		try {
-			await checkout("tarjeta_simulada");
-		} catch (error) {
-			// El error ya se maneja en el context mostrando una notificación
-			console.error("Error en checkout:", error);
-		}
+	const irAPagar = () => {
+		navigate("/pasarela-pago");
 	};
 
 	return (
@@ -35,11 +32,14 @@ export default function Carrito() {
 				<Boton
 					className="w-full bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50"
 					disabled={!cart.items?.length || isLoading}
-					onClick={onCheckout}
+					onClick={irAPagar}
 					type="button"
 				>
-					{isLoading ? "Procesando..." : "Finalizar compra"}
+					Ir a pagar
 				</Boton>
+				<p className="text-center text-xs text-slate-500">
+					Continúa para elegir tu método de pago
+				</p>
 			</div>
 		</section>
 	);

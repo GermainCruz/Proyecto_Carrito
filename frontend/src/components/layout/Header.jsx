@@ -6,6 +6,7 @@ const links = [
 	{ to: "/productos", label: "Productos" },
 	{ to: "/carrito", label: "Carrito", onlyRoles: ["cliente"] },
 	{ to: "/mis-pedidos", label: "Mis pedidos", onlyRoles: ["cliente"] },
+	{ to: "/mis-transacciones", label: "Mis pagos", onlyRoles: ["cliente"] },
 	{ to: "/dashboard", label: "Dashboard", onlyRoles: ["admin", "gestor"] },
 	{ to: "/gestion-pedidos", label: "Pedidos", onlyRoles: ["admin", "gestor"] },
 	{ to: "/reportes/operacional", label: "Reporte operacional", onlyRoles: ["admin", "gestor"] },

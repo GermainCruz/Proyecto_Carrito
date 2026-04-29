@@ -7,6 +7,7 @@ const authRoutes = require("./routes/authRoutes");
 const productoRoutes = require("./routes/productoRoutes");
 const carritoRoutes = require("./routes/carritoRoutes");
 const pedidoRoutes = require("./routes/pedidoRoutes");
+const pagoRoutes = require("./routes/pagoRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const reporteRoutes = require("./routes/reporteRoutes");
 const openApiSpec = require("./docs/openapi");
@@ -63,6 +64,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/productos", productoRoutes);
 app.use("/api/carrito", carritoRoutes);
 app.use("/api/pedidos", pedidoRoutes);
+app.use("/api/pagos", pagoRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/reportes", reporteRoutes);
 

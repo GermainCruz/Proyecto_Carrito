@@ -20,12 +20,14 @@ async function generateOperationalPdf(startDate, endDate) {
 				p.estado,
 				p.total,
 				u.nombre AS cliente,
+				mp.nombre AS metodo_pago,
 				pr.nombre AS producto,
 				dp.cantidad,
 				dp.subtotal,
 				pr.stock AS stock_actual
 			FROM pedidos p
 			JOIN usuarios u ON u.id = p.usuario_id
+			LEFT JOIN metodos_pago mp ON mp.id = p.metodo_pago_id
 			LEFT JOIN detalle_pedidos dp ON dp.pedido_id = p.id
 			LEFT JOIN productos pr ON pr.id = dp.producto_id
 			WHERE p.fecha_pedido::date BETWEEN :startDate AND :endDate
@@ -42,6 +44,7 @@ async function generateOperationalPdf(startDate, endDate) {
 				fecha: new Date(row.fecha_pedido).toLocaleString("es-PE"),
 				estado: row.estado,
 				cliente: row.cliente,
+				metodo_pago: row.metodo_pago || "—",
 				total: Number(row.total),
 				detalles: [],
 			});

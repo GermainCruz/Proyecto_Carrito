@@ -53,18 +53,31 @@ VALUES
 ON CONFLICT (id) DO NOTHING;
 
 -- ============================================
--- TABLA: pedidos
+-- TABLA: metodos_pago (catálogo de la pasarela)
 -- ============================================
-INSERT INTO pedidos (id, usuario_id, fecha_pedido, estado, total, metodo_pago_simulado, fecha_creacion)
+INSERT INTO metodos_pago (id, codigo, nombre, tipo, requiere_tarjeta, comision_porcentaje, activo, fecha_creacion)
 VALUES
-    (1, 3, '2026-04-15 09:15:00', 'entregado', 299.60, 'tarjeta_simulada', '2026-04-15 09:16:00'),
-    (2, 3, '2026-04-16 14:20:00', 'enviado', 378.00, 'yape_simulado', '2026-04-16 14:21:00'),
-    (3, 4, '2026-04-16 18:10:00', 'pagado', 798.00, 'plin_simulado', '2026-04-16 18:11:00'),
-    (4, 5, '2026-04-17 08:45:00', 'entregado', 448.80, 'tarjeta_simulada', '2026-04-17 08:46:00'),
-    (5, 4, '2026-04-18 19:30:00', 'cancelado', 258.00, 'yape_simulado', '2026-04-18 19:31:00'),
-    (6, 3, '2026-04-19 12:05:00', 'pagado', 958.90, 'tarjeta_simulada', '2026-04-19 12:06:00'),
-    (7, 5, '2026-04-20 16:40:00', 'enviado', 268.90, 'plin_simulado', '2026-04-20 16:41:00'),
-    (8, 4, '2026-04-21 10:25:00', 'pendiente', 1298.00, 'tarjeta_simulada', '2026-04-21 10:26:00')
+    (1, 'visa',           'Visa',                 'tarjeta',       true,  3.50, true, '2026-04-01 08:00:00'),
+    (2, 'mastercard',     'Mastercard',           'tarjeta',       true,  3.50, true, '2026-04-01 08:00:00'),
+    (3, 'amex',           'American Express',     'tarjeta',       true,  4.00, true, '2026-04-01 08:00:00'),
+    (4, 'yape',           'Yape',                 'billetera',     false, 0.00, true, '2026-04-01 08:00:00'),
+    (5, 'plin',           'Plin',                 'billetera',     false, 0.00, true, '2026-04-01 08:00:00'),
+    (6, 'transferencia',  'Transferencia bancaria','transferencia', false, 0.50, true, '2026-04-01 08:00:00')
+ON CONFLICT (codigo) DO NOTHING;
+
+-- ============================================
+-- TABLA: pedidos (ahora con FK a metodos_pago)
+-- ============================================
+INSERT INTO pedidos (id, usuario_id, fecha_pedido, estado, total, metodo_pago_id, fecha_creacion)
+VALUES
+    (1, 3, '2026-04-15 09:15:00', 'entregado', 299.60, 1, '2026-04-15 09:16:00'), -- Visa
+    (2, 3, '2026-04-16 14:20:00', 'enviado',   378.00, 4, '2026-04-16 14:21:00'), -- Yape
+    (3, 4, '2026-04-16 18:10:00', 'pagado',    798.00, 5, '2026-04-16 18:11:00'), -- Plin
+    (4, 5, '2026-04-17 08:45:00', 'entregado', 448.80, 2, '2026-04-17 08:46:00'), -- Mastercard
+    (5, 4, '2026-04-18 19:30:00', 'cancelado', 258.00, 4, '2026-04-18 19:31:00'), -- Yape (luego reembolsado)
+    (6, 3, '2026-04-19 12:05:00', 'pagado',    958.90, 1, '2026-04-19 12:06:00'), -- Visa
+    (7, 5, '2026-04-20 16:40:00', 'enviado',   268.90, 5, '2026-04-20 16:41:00'), -- Plin
+    (8, 4, '2026-04-21 10:25:00', 'pendiente', 1298.00, 2, '2026-04-21 10:26:00') -- Mastercard
 ON CONFLICT (id) DO NOTHING;
 
 -- ============================================
@@ -88,13 +101,119 @@ VALUES
 ON CONFLICT (id) DO NOTHING;
 
 -- ============================================
+-- TABLA: transacciones_pago (bitácora de la pasarela)
+--   - Una transacción APROBADA por cada pedido existente
+--   - Algunas RECHAZADAS para mostrar el flujo de fallo
+--   - Una INICIADA (intento incompleto)
+--   - Una REEMBOLSADA (vinculada al pedido cancelado)
+-- ============================================
+INSERT INTO transacciones_pago (
+    id, codigo_transaccion, usuario_id, metodo_pago_id, pedido_id,
+    monto, moneda, estado,
+    tarjeta_titular, tarjeta_ultimos_4, tarjeta_marca,
+    telefono_billetera,
+    codigo_autorizacion, referencia_externa, motivo_rechazo,
+    fecha_iniciada, fecha_procesada, fecha_actualizacion
+)
+VALUES
+    -- Transacciones APROBADAS (una por cada pedido)
+    (1,  'TXN-20260415-A1B2C3D4', 3, 1, 1,
+        299.60, 'PEN', 'aprobada',
+        'CLIENTE DEMO 1', '4242', 'visa',
+        NULL,
+        'AUTH-845210', 'REF-VS-118472', NULL,
+        '2026-04-15 09:15:00', '2026-04-15 09:15:08', '2026-04-15 09:15:08'),
+
+    (2,  'TXN-20260416-B2C3D4E5', 3, 4, 2,
+        378.00, 'PEN', 'aprobada',
+        NULL, NULL, NULL,
+        '999111222',
+        'AUTH-712309', 'REF-YP-220981', NULL,
+        '2026-04-16 14:20:00', '2026-04-16 14:20:05', '2026-04-16 14:20:05'),
+
+    (3,  'TXN-20260416-C3D4E5F6', 4, 5, 3,
+        798.00, 'PEN', 'aprobada',
+        NULL, NULL, NULL,
+        '999333444',
+        'AUTH-558102', 'REF-PL-310455', NULL,
+        '2026-04-16 18:10:00', '2026-04-16 18:10:06', '2026-04-16 18:10:06'),
+
+    (4,  'TXN-20260417-D4E5F6A7', 5, 2, 4,
+        448.80, 'PEN', 'aprobada',
+        'CLIENTE DEMO 3', '5555', 'mastercard',
+        NULL,
+        'AUTH-901833', 'REF-MC-405216', NULL,
+        '2026-04-17 08:45:00', '2026-04-17 08:45:09', '2026-04-17 08:45:09'),
+
+    (5,  'TXN-20260418-E5F6A7B8', 4, 4, 5,
+        258.00, 'PEN', 'reembolsada',
+        NULL, NULL, NULL,
+        '999111222',
+        'AUTH-203145', 'REF-YP-509377', NULL,
+        '2026-04-18 19:30:00', '2026-04-18 19:30:07', '2026-04-18 19:35:00'),
+
+    (6,  'TXN-20260419-F6A7B8C9', 3, 1, 6,
+        958.90, 'PEN', 'aprobada',
+        'CLIENTE DEMO 1', '4242', 'visa',
+        NULL,
+        'AUTH-672490', 'REF-VS-602148', NULL,
+        '2026-04-19 12:05:00', '2026-04-19 12:05:08', '2026-04-19 12:05:08'),
+
+    (7,  'TXN-20260420-A7B8C9D0', 5, 5, 7,
+        268.90, 'PEN', 'aprobada',
+        NULL, NULL, NULL,
+        '999333444',
+        'AUTH-389017', 'REF-PL-704583', NULL,
+        '2026-04-20 16:40:00', '2026-04-20 16:40:05', '2026-04-20 16:40:05'),
+
+    (8,  'TXN-20260421-B8C9D0E1', 4, 2, 8,
+        1298.00, 'PEN', 'aprobada',
+        'CLIENTE DEMO 2', '5500', 'mastercard',
+        NULL,
+        'AUTH-114507', 'REF-MC-805942', NULL,
+        '2026-04-21 10:25:00', '2026-04-21 10:25:11', '2026-04-21 10:25:11'),
+
+    -- Transacciones RECHAZADAS (no generaron pedido)
+    (9,  'TXN-20260420-RJ001234', 4, 1, NULL,
+        450.00, 'PEN', 'rechazada',
+        'CLIENTE DEMO 2', '4000', 'visa',
+        NULL,
+        NULL, 'REF-VS-RJ12345', 'Fondos insuficientes',
+        '2026-04-20 09:30:00', '2026-04-20 09:30:04', '2026-04-20 09:30:04'),
+
+    (10, 'TXN-20260421-RJ005678', 3, 2, NULL,
+        180.00, 'PEN', 'rechazada',
+        'CLIENTE DEMO 1', '5000', 'mastercard',
+        NULL,
+        NULL, 'REF-MC-RJ67890', 'Tarjeta vencida',
+        '2026-04-21 11:15:00', '2026-04-21 11:15:03', '2026-04-21 11:15:03'),
+
+    (11, 'TXN-20260422-RJ009012', 5, 4, NULL,
+        99.90, 'PEN', 'rechazada',
+        NULL, NULL, NULL,
+        '000999888',
+        NULL, 'REF-YP-RJ45678', 'Numero de billetera invalido',
+        '2026-04-22 14:50:00', '2026-04-22 14:50:02', '2026-04-22 14:50:02'),
+
+    -- Transaccion INICIADA (intento que el usuario abandono)
+    (12, 'TXN-20260423-IN345678', 3, 1, NULL,
+        199.90, 'PEN', 'iniciada',
+        'CLIENTE DEMO 1', NULL, NULL,
+        NULL,
+        NULL, NULL, NULL,
+        '2026-04-23 16:00:00', NULL, '2026-04-23 16:00:00')
+ON CONFLICT (id) DO NOTHING;
+
+-- ============================================
 -- AJUSTE DE SECUENCIAS
 -- ============================================
 SELECT setval(pg_get_serial_sequence('usuarios', 'id'), COALESCE((SELECT MAX(id) FROM usuarios), 1), true);
 SELECT setval(pg_get_serial_sequence('productos', 'id'), COALESCE((SELECT MAX(id) FROM productos), 1), true);
 SELECT setval(pg_get_serial_sequence('carrito', 'id'), COALESCE((SELECT MAX(id) FROM carrito), 1), true);
 SELECT setval(pg_get_serial_sequence('carrito_productos', 'id'), COALESCE((SELECT MAX(id) FROM carrito_productos), 1), true);
+SELECT setval(pg_get_serial_sequence('metodos_pago', 'id'), COALESCE((SELECT MAX(id) FROM metodos_pago), 1), true);
 SELECT setval(pg_get_serial_sequence('pedidos', 'id'), COALESCE((SELECT MAX(id) FROM pedidos), 1), true);
 SELECT setval(pg_get_serial_sequence('detalle_pedidos', 'id'), COALESCE((SELECT MAX(id) FROM detalle_pedidos), 1), true);
+SELECT setval(pg_get_serial_sequence('transacciones_pago', 'id'), COALESCE((SELECT MAX(id) FROM transacciones_pago), 1), true);
 
 COMMIT;

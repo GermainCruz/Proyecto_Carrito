@@ -1,7 +1,7 @@
 const { Client } = require("pg");
 
 const sequelize = require("./database");
-const { Usuario, Producto } = require("../models");
+const { Usuario, Producto, MetodoPago } = require("../models");
 const { hashPassword } = require("../utils/bcryptHelper");
 
 const seedUsuarios = [
@@ -36,6 +36,15 @@ const seedProductos = [
 	{ nombre: "Audifonos Bluetooth", descripcion: "Cancelacion de ruido basica", precio: 149.0, stock: 40, categoria: "Audio" },
 ];
 
+const seedMetodosPago = [
+	{ codigo: "visa",          nombre: "Visa",                  tipo: "tarjeta",       requiere_tarjeta: true,  comision_porcentaje: 3.5, activo: true },
+	{ codigo: "mastercard",    nombre: "Mastercard",            tipo: "tarjeta",       requiere_tarjeta: true,  comision_porcentaje: 3.5, activo: true },
+	{ codigo: "amex",          nombre: "American Express",      tipo: "tarjeta",       requiere_tarjeta: true,  comision_porcentaje: 4.0, activo: true },
+	{ codigo: "yape",          nombre: "Yape",                  tipo: "billetera",     requiere_tarjeta: false, comision_porcentaje: 0.0, activo: true },
+	{ codigo: "plin",          nombre: "Plin",                  tipo: "billetera",     requiere_tarjeta: false, comision_porcentaje: 0.0, activo: true },
+	{ codigo: "transferencia", nombre: "Transferencia bancaria", tipo: "transferencia", requiere_tarjeta: false, comision_porcentaje: 0.5, activo: true },
+];
+
 async function ensureDatabaseExists() {
 	const databaseName = process.env.DB_NAME || "carrito_compras";
 	const client = new Client({
@@ -67,6 +76,11 @@ async function seedIfNeeded() {
 	const productsCount = await Producto.count();
 	if (!productsCount) {
 		await Producto.bulkCreate(seedProductos, { ignoreDuplicates: true });
+	}
+
+	const metodosCount = await MetodoPago.count();
+	if (!metodosCount) {
+		await MetodoPago.bulkCreate(seedMetodosPago, { ignoreDuplicates: true });
 	}
 }
 

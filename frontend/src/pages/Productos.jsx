@@ -8,7 +8,10 @@ import { useCarrito } from "../hooks/useCarrito";
 import api from "../services/api";
 import { money } from "../utils/formateadores";
 
-const localProductImages = import.meta.glob("../assets/productos/*", { eager: true, import: "default" });
+const localProductImages = {
+	...import.meta.glob("../assets/*", { eager: true, import: "default" }),
+	...import.meta.glob("../assets/productos/*", { eager: true, import: "default" }),
+};
 
 function resolveProductImage(imagenUrl) {
 	if (!imagenUrl) return null;
@@ -21,8 +24,11 @@ function resolveProductImage(imagenUrl) {
 	const fileName = normalized.split("/").pop();
 	if (!fileName) return null;
 
-	const directAsset = localProductImages[`../assets/productos/${fileName}`];
+	const directAsset = localProductImages[`../assets/${fileName}`];
 	if (directAsset) return directAsset;
+
+	const legacyAsset = localProductImages[`../assets/productos/${fileName}`];
+	if (legacyAsset) return legacyAsset;
 
 	if (normalized.startsWith("frontend/src/assets/")) {
 		return normalized.replace("frontend/src/assets", "/src/assets");
@@ -145,8 +151,8 @@ export default function Productos() {
 
 			if (selectedFile) {
 				const formData = new FormData();
-				formData.append("imagen", selectedFile);
 				formData.append("nombre", form.nombre);
+				formData.append("imagen", selectedFile);
 				const { data } = await api.post("/productos/upload-imagen", formData, {
 					headers: { "Content-Type": "multipart/form-data" },
 				});

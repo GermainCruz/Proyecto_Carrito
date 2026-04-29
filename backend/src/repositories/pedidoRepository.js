@@ -1,4 +1,15 @@
-const { Pedido, DetallePedido, Producto, Usuario } = require("../models");
+const { Pedido, DetallePedido, Producto, Usuario, MetodoPago, TransaccionPago } = require("../models");
+
+const includeFull = [
+	{ model: Usuario, as: "usuario", attributes: ["id", "nombre", "correo_electronico", "rol"] },
+	{ model: MetodoPago, as: "metodo_pago" },
+	{ model: TransaccionPago, as: "transaccion_pago" },
+	{
+		model: DetallePedido,
+		as: "detalles",
+		include: [{ model: Producto, as: "producto" }],
+	},
+];
 
 async function createPedido(data, options = {}) {
 	return Pedido.create(data, options);
@@ -14,13 +25,7 @@ async function createDetalle(data, options = {}) {
 async function listByUsuario(usuarioId) {
 	return Pedido.findAll({
 		where: { usuario_id: usuarioId },
-		include: [
-			{
-				model: DetallePedido,
-				as: "detalles",
-				include: [{ model: Producto, as: "producto" }],
-			},
-		],
+		include: includeFull,
 		order: [["id", "DESC"]],
 	});
 }
@@ -41,14 +46,7 @@ async function listAll({ fechaDesde, fechaHasta, usuarioId } = {}) {
 
 	return Pedido.findAll({
 		where,
-		include: [
-			{ model: Usuario, as: "usuario", attributes: ["id", "nombre", "correo_electronico", "rol"] },
-			{
-				model: DetallePedido,
-				as: "detalles",
-				include: [{ model: Producto, as: "producto" }],
-			},
-		],
+		include: includeFull,
 		order: [["id", "DESC"]],
 	});
 }
@@ -56,14 +54,7 @@ async function listAll({ fechaDesde, fechaHasta, usuarioId } = {}) {
 async function findById(id, options = {}) {
 	return Pedido.findByPk(id, {
 		...options,
-		include: [
-			{ model: Usuario, as: "usuario", attributes: ["id", "nombre", "correo_electronico", "rol"] },
-			{
-				model: DetallePedido,
-				as: "detalles",
-				include: [{ model: Producto, as: "producto" }],
-			},
-		],
+		include: includeFull,
 	});
 }
 
