@@ -56,8 +56,9 @@ app.use(
 		secret: process.env.SESSION_SECRET || "dev_secret_change_me",
 		resave: false,
 		saveUninitialized: false,
+		proxy: true,
 		cookie: {
-			maxAge: 1000 * 60 * 60 * 8,
+			maxAge: 24 * 60 * 60 * 1000,
 			httpOnly: true,
 			sameSite: sessionSameSite,
 			secure: sessionSecure,
