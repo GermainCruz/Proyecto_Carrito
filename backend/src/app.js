@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const session = require("express-session");
 const swaggerUi = require("swagger-ui-express");
+const path = require("path");
 
 const authRoutes = require("./routes/authRoutes");
 const productoRoutes = require("./routes/productoRoutes");
@@ -38,6 +39,13 @@ app.use(
 );
 app.use(express.json());
 
+// Servir los archivos subidos estáticamente de forma que el cliente pueda visualizarlos.
+app.use("/uploads", express.static(path.join(__dirname, "..", "uploads")));
+
+const isProduction = process.env.NODE_ENV === "production";
+
+app.set("trust proxy", 1); // necesario para cookies secure en plataformas como Render
+
 app.use(
 	session({
 		name: "carrito.sid",
@@ -47,8 +55,8 @@ app.use(
 		cookie: {
 			maxAge: 1000 * 60 * 60 * 8,
 			httpOnly: true,
-			sameSite: "lax",
-			secure: false,
+			sameSite: isProduction ? "none" : "lax",
+			secure: isProduction,
 		},
 	})
 );

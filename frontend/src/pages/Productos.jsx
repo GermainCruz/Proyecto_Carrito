@@ -16,8 +16,13 @@ const localProductImages = {
 function resolveProductImage(imagenUrl) {
 	if (!imagenUrl) return null;
 
-	if (imagenUrl.startsWith("http://") || imagenUrl.startsWith("https://") || imagenUrl.startsWith("/")) {
+	if (imagenUrl.startsWith("http://") || imagenUrl.startsWith("https://")) {
 		return imagenUrl;
+	}
+
+	if (imagenUrl.startsWith("/uploads/")) {
+		const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
+		return `${baseUrl.replace(/\/api\/?$/, "")}${imagenUrl}`;
 	}
 
 	const normalized = imagenUrl.replaceAll("\\", "/");

@@ -2,7 +2,7 @@ const path = require("path");
 const multer = require("multer");
 const fs = require("fs");
 
-const PRODUCTOS_ASSETS_DIR = path.join(__dirname, "..", "..", "..", "frontend", "src", "assets");
+const PRODUCTOS_ASSETS_DIR = path.join(__dirname, "..", "..", "uploads");
 
 if (!fs.existsSync(PRODUCTOS_ASSETS_DIR)) {
 	fs.mkdirSync(PRODUCTOS_ASSETS_DIR, { recursive: true });
