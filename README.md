@@ -143,3 +143,4 @@ DB_PASSWORD=sa
 - [Manual de usuario](MANUAL_USUARIO.md)
 - [Manual de instalación](MANUAL_INSTALACION.md)
 - [Guía SQL](sql/README.md)
+
