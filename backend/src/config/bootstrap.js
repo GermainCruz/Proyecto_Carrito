@@ -29,11 +29,14 @@ const seedUsuarios = [
 ];
 
 const seedProductos = [
-	{ nombre: "Mouse Inalambrico", descripcion: "Mouse ergonomico recargable", precio: 79.9, stock: 45, categoria: "Perifericos" },
-	{ nombre: "Teclado Mecanico", descripcion: "Teclado switch red para gaming y oficina", precio: 189.0, stock: 30, categoria: "Perifericos" },
-	{ nombre: "Monitor 24 pulgadas", descripcion: "Panel IPS Full HD 75Hz", precio: 649.0, stock: 20, categoria: "Monitores" },
-	{ nombre: "SSD NVMe 1TB", descripcion: "Unidad estado solido PCIe 4.0", precio: 329.0, stock: 25, categoria: "Almacenamiento" },
-	{ nombre: "Audifonos Bluetooth", descripcion: "Cancelacion de ruido basica", precio: 149.0, stock: 40, categoria: "Audio" },
+	{ nombre: "Mouse Inalambrico", descripcion: "Mouse ergonomico recargable", precio: 79.9, stock: 45, categoria: "Perifericos", imagen_url: "mouse.jpg" },
+	{ nombre: "Teclado Mecanico", descripcion: "Teclado switch red para gaming y oficina", precio: 189.0, stock: 30, categoria: "Perifericos", imagen_url: "teclado.jpg" },
+	{ nombre: "Monitor 24 pulgadas", descripcion: "Panel IPS Full HD 75Hz", precio: 649.0, stock: 20, categoria: "Monitores", imagen_url: "monitor24.jpg" },
+	{ nombre: "SSD NVMe 1TB", descripcion: "Unidad estado solido PCIe 4.0", precio: 329.0, stock: 25, categoria: "Almacenamiento", imagen_url: "ssd1tb.jpg" },
+	{ nombre: "Audifonos Bluetooth", descripcion: "Cancelacion de ruido basica", precio: 149.0, stock: 40, categoria: "Audio", imagen_url: "audifonos.jpg" },
+	{ nombre: "Webcam HD", descripcion: "Camara para videollamadas Full HD", precio: 129.0, stock: 18, categoria: "Accesorios", imagen_url: "webcam.jpg" },
+	{ nombre: "Silla Ergonomica", descripcion: "Silla ajustable para oficina", precio: 899.0, stock: 12, categoria: "Oficina", imagen_url: "silla.jpg" },
+	{ nombre: "Adaptador USB-C", descripcion: "Adaptador multipuerto 5 en 1", precio: 59.9, stock: 60, categoria: "Accesorios", imagen_url: "adaptador.jpg" },
 ];
 
 const seedMetodosPago = [
