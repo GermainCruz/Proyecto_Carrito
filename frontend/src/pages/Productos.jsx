@@ -20,6 +20,7 @@ function resolveProductImage(imagenUrl) {
 		return imagenUrl;
 	}
 
+	// si la imagen viene desde /uploads (backend), retorna absoluta usando VITE_API_URL
 	if (imagenUrl.startsWith("/uploads/")) {
 		const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
 		return `${baseUrl.replace(/\/api\/?$/, "")}${imagenUrl}`;
@@ -35,10 +36,22 @@ function resolveProductImage(imagenUrl) {
 	const legacyAsset = localProductImages[`../assets/productos/${fileName}`];
 	if (legacyAsset) return legacyAsset;
 
-	if (normalized.startsWith("frontend/src/assets/")) {
-		return normalized.replace("frontend/src/assets", "/src/assets");
+	// Fallback: intentar construir rutas estáticas comunes (no garantiza hashing de Vite)
+	// 1) si el archivo está en la build estática normalmente puede estar bajo /assets/
+	const tryPaths = [
+		`/assets/productos/${fileName}`,
+		`/src/assets/productos/${fileName}`,
+		`/src/assets/${fileName}`,
+	];
+
+	for (const p of tryPaths) {
+		// no generamos peticiones aquí, solo devolvemos para que el <img> las intente
+		// el navegador mostrará 404 en red si no existe
+		// preferimos devolver la primera opción razonable
+		return p;
 	}
 
+	// último recurso: devolver el string normalizado
 	return normalized;
 }
 

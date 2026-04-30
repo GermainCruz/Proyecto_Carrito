@@ -26,7 +26,14 @@ function resolveProductImage(imagenUrl) {
 
 	const legacyAsset = localProductImages[`../assets/productos/${fileName}`];
 	if (legacyAsset) return legacyAsset;
-	return normalized;
+
+	// Fallback paths: el navegador intentará cargarlas y verás 404 en Network si faltan
+	const tryPaths = [
+		`/assets/productos/${fileName}`,
+		`/src/assets/productos/${fileName}`,
+		`/src/assets/${fileName}`,
+	];
+	return tryPaths[0];
 }
 
 const ESTADO_CONFIG = {
