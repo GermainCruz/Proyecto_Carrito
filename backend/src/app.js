@@ -43,6 +43,10 @@ app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "..", "uploads")));
 
 const isProduction = process.env.NODE_ENV === "production";
+const sessionSameSite = (process.env.SESSION_SAMESITE || (isProduction ? "none" : "lax")).toLowerCase();
+const sessionSecure = process.env.SESSION_SECURE
+	? process.env.SESSION_SECURE.toLowerCase() === "true"
+	: isProduction;
 
 app.set("trust proxy", 1); // necesario para cookies secure en plataformas como Render
 
@@ -55,8 +59,8 @@ app.use(
 		cookie: {
 			maxAge: 1000 * 60 * 60 * 8,
 			httpOnly: true,
-			sameSite: isProduction ? "none" : "lax",
-			secure: isProduction,
+			sameSite: sessionSameSite,
+			secure: sessionSecure,
 		},
 	})
 );
